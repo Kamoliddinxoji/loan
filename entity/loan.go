@@ -9,5 +9,5 @@ type Loan struct {
 	AmountLoan  float64 `json:"amount_loan" binding:"required,number"`
 	Percent     float64 `json:"percent" binding:"required,number"`
 	Lifetime    int     `json:"lifetime" binding:"required,number"`
-	CurrentDebt float64 `json:"current_debt" binding:"required,number"`
+	CurrentDebt float64 `json:"current_debt"`
 }

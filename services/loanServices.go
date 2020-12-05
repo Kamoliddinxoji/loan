@@ -56,22 +56,52 @@ func (service *loanServices) AddCostumer(customer entity.Customer) int {
 	db.SetMaxOpenConns(100)
 	defer db.Close()
 	fmt.Print(customer)
-	// sql := "INSERT INTO `customer`(full_name, address, number) values($1, $2, $3) RETURNING customer_id"
-	// id := 0
-	// err = db.QueryRow(sql, customer.Name, customer.Address, customer.Number).Scan(&id)
-	address := ""
-	sqlselect := "select address from customer where customer_id = 1"
-	err = db.QueryRow(sqlselect).Scan(&address)
-	fmt.Println(address)
+
+	checkCustomer := "select count(customer_id) from customer where passport_number = $1"
+	chid := 0
+	err = db.QueryRow(checkCustomer, customer.PassportNumber).Scan(&chid)
+
+	if err != nil {
+		panic(err.Error())
+	} else if chid != 0 {
+		return -27 // custoemr excist
+	}
+	sql := "INSERT INTO customer(full_name, address, number,passport_number) values($1, $2, $3, $4) RETURNING customer_id"
+	id := 0
+	err = db.QueryRow(sql, customer.Name, customer.Address, customer.Number, customer.PassportNumber).Scan(&id)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	return 1
+	return id
 }
-func (service *loanServices) AddLoan(entity.Loan) int {
+func (service *loanServices) AddLoan(loan entity.Loan) int {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	fmt.Print(err)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected!")
+	db.SetConnMaxLifetime(time.Second * 5)
+	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+	defer db.Close()
 
-	return 1
+	sql := "INSERT INTO `loan`(costumer_id, start_date, end_date,amount_loan,percent,lifetime,current_debt) values($1, $2, $3,$4,$5,$6,$7) RETURNING loan_id"
+	id := 0
+	err = db.QueryRow(sql, loan.CustomerID, loan.StartDate, loan.EndDate, loan.AmountLoan, loan.Percent, loan.Lifetime, loan.AmountLoan).Scan(&id)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return id
 }
 func (service *loanServices) RepayLoan(entity.RePayLoan) int {
 
