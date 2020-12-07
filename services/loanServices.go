@@ -7,6 +7,7 @@ import (
 	"time"
 
 	// _ ....
+
 	_ "github.com/lib/pq"
 )
 
@@ -103,13 +104,101 @@ func (service *loanServices) AddLoan(loan entity.Loan) int {
 
 	return id
 }
-func (service *loanServices) RepayLoan(entity.RePayLoan) int {
+func (service *loanServices) RepayLoan(repayloan entity.RePayLoan) int {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	fmt.Print(err)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected!")
+	db.SetConnMaxLifetime(time.Second * 5)
+	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+	defer db.Close()
 
-	return 1
+	sql := "INSERT INTO `loanpay`(customer_id, loan_id,pay_amount,date) values($1, $2, $3,$4) RETURNING loanpay_id"
+	id := 0
+	err = db.QueryRow(sql, repayloan.CustomerID, repayloan.LoanID, repayloan.PayAmount, time.Now().Format("2006-01-02 15:04:05.000000-0700")).Scan(&id)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return id
 }
 func (service *loanServices) GetAllLoans() []entity.Loan {
-	return service.loans
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	fmt.Print(err)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected!")
+	db.SetConnMaxLifetime(time.Second * 5)
+	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+	defer db.Close()
+
+	sql := "Select * from loan"
+	rows, err2 := db.Query(sql)
+	if err2 != nil {
+		panic(err.Error())
+	}
+
+	loans := []entity.Loan{}
+
+	for rows.Next() {
+		var r entity.Loan
+		err = rows.Scan(&r.LoanID, &r.CustomerID, &r.StartDate, &r.EndDate, &r.AmountLoan, &r.Percent, &r.Lifetime, &r.CurrentDebt)
+		loans = append(loans, r)
+	}
+	return loans
 }
 func (service *loanServices) GetAllCustomers() []entity.Customer {
-	return service.customers
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	fmt.Print(err)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected!")
+	db.SetConnMaxLifetime(time.Second * 5)
+	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+	defer db.Close()
+
+	sql := "Select * from customer"
+	rows, err2 := db.Query(sql)
+	if err2 != nil {
+		panic(err.Error())
+	}
+
+	cutomers := []entity.Customer{}
+
+	for rows.Next() {
+		var r entity.Customer
+		err = rows.Scan(&r.CustomerID, &r.Name, &r.Address, &r.Number, &r.PassportNumber)
+		cutomers = append(cutomers, r)
+	}
+	return cutomers
 }

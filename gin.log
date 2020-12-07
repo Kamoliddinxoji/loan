@@ -5,5 +5,6 @@
 [GIN-debug] GET    /testCon                  --> main.main.func5 (5 handlers)
 [GIN-debug] Environment variable PORT is undefined. Using port :8080 by default
 [GIN-debug] Listening and serving HTTP on :8080
-::1  -  [05 Dec 20 12:19 +05] POST /customers 200  1.080698523s 
-::1  -  [05 Dec 20 12:20 +05] POST /customers 200  8.677451ms 
+::1  -  [07 Dec 20 07:54 +05] GET /customers 200  249.670821ms 
+::1  -  [07 Dec 20 07:55 +05] POST /customers 200  476.301883ms 
+::1  -  [07 Dec 20 07:58 +05] GET /customers 200  13.87341ms 

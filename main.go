@@ -39,7 +39,9 @@ func main() {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			c.JSON(200, id)
+			c.JSON(200, gin.H{
+				"id": id,
+			})
 		}
 
 	})
@@ -55,7 +57,9 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			fmt.Println("succes qator")
-			c.JSON(200, id)
+			c.JSON(200, gin.H{
+				"id": id,
+			})
 		}
 
 	})
