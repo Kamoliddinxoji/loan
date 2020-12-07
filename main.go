@@ -4,7 +4,6 @@ import (
 	"Loan/controller"
 	"Loan/middlewares"
 	"Loan/services"
-	"database/sql"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,7 +42,6 @@ func main() {
 				"id": id,
 			})
 		}
-
 	})
 
 	server.GET("/customers", func(c *gin.Context) {
@@ -62,18 +60,6 @@ func main() {
 			})
 		}
 
-	})
-	server.GET("/testCon", func(c *gin.Context) {
-		db, err := sql.Open("mysql", "admin:xoji@tcp(127.0.0.1:5432)/loan")
-		if err != nil {
-			panic(err.Error())
-
-		}
-
-		add := ""
-		db.QueryRow("select address from customer where customer_id = 1;").Scan(&add)
-		defer db.Close()
-		c.JSON(200, add)
 	})
 
 	server.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
